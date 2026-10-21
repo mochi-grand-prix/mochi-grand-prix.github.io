@@ -961,14 +961,15 @@ body {
       world.add(starPts);
     }
   }
-  function roadMat(color, cobble) {
+  function roadMat(color, cobble, look) {
+    var lk = look || {}, kA = lk.kerbA || '#e63946', kB = lk.kerbB || '#f4f1ff', ln = lk.line || '#f4f1ff';
     var paint = function (g, w, h, img) {
       g.fillStyle = color; g.fillRect(0, 0, w, h);
       if (img) { g.drawImage(img, 0, 0, w / 2, h); g.drawImage(img, w / 2, 0, w / 2, h); if (!cobble) { g.fillStyle = 'rgba(20,20,28,0.35)'; g.fillRect(0, 0, w, h); } }
       else body(g, w, h);
-      g.fillStyle = '#e63946'; g.fillRect(0, 0, 11 * w / 256, h / 2); g.fillRect(w - 11 * w / 256, 0, 11 * w / 256, h / 2);      // red and white kerbs
-      g.fillStyle = '#f4f1ff'; g.fillRect(0, h / 2, 11 * w / 256, h / 2); g.fillRect(w - 11 * w / 256, h / 2, 11 * w / 256, h / 2);
-      g.fillRect(13 * w / 256, 0, 4 * w / 256, h); g.fillRect(w - 17 * w / 256, 0, 4 * w / 256, h);
+      g.fillStyle = kA; g.fillRect(0, 0, 11 * w / 256, h / 2); g.fillRect(w - 11 * w / 256, 0, 11 * w / 256, h / 2);      // red and white kerbs
+      g.fillStyle = kB; g.fillRect(0, h / 2, 11 * w / 256, h / 2); g.fillRect(w - 11 * w / 256, h / 2, 11 * w / 256, h / 2);
+      g.fillStyle = ln; g.fillRect(13 * w / 256, 0, 4 * w / 256, h); g.fillRect(w - 17 * w / 256, 0, 4 * w / 256, h);
       g.fillRect(w / 2 - 3 * w / 256, 0, 6 * w / 256, h / 2);
     };
     var mat = new THREE.MeshLambertMaterial({ side: THREE.DoubleSide, map: canvasTex(256, 256, function (g, w, h) { paint(g, w, h, null); }) });
@@ -1958,7 +1959,7 @@ body {
     var gummy = function (c) { return new THREE.MeshPhongMaterial({ color: c, shininess: 90, specular: 0x888888, transparent: true, opacity: 0.8 }); };
     var candy = function (c) { return new THREE.MeshPhongMaterial({ color: c, shininess: 120, specular: 0xaaaaaa }); };
     var cream = function (c) { return lam(c); };
-    var kinako = flat(0xd9b97e), kinakoDark = flat(0xbf9a5c);
+    var kinako = flat(0xffc6dd), kinakoDark = flat(0xcdbcf7);
     var sugar = new THREE.MeshPhongMaterial({ color: 0xe8f8ff, shininess: 150, specular: 0xffffff, transparent: true, opacity: 0.42, depthWrite: false });
     var SPH = new THREE.SphereGeometry(1, 28, 18), SPHL = new THREE.SphereGeometry(1, 12, 9), DOD = new THREE.DodecahedronGeometry(1);
     var PASTEL = [0xff9ec4, 0xa8e6cf, 0xfff07a, 0xc9b6ff, 0x9fdcff, 0xffc29e];
@@ -1987,8 +1988,8 @@ body {
 
     // ---- the road as a thick slab of cake with candy rails, standing on candy-coloured pillars ----
     var layerTex = canvasTex(64, 64, function (g) {
-      g.fillStyle = '#e8c08a'; g.fillRect(0, 0, 64, 64);                    // sponge
-      for (var n = 0; n < 70; n++) { g.fillStyle = 'rgba(150,100,50,0.25)'; g.fillRect(Math.random() * 64, 24 + Math.random() * 40, 2, 2); }
+      g.fillStyle = '#ffe9a8'; g.fillRect(0, 0, 64, 64);                    // sponge
+      for (var n = 0; n < 70; n++) { g.fillStyle = 'rgba(255,190,90,0.3)'; g.fillRect(Math.random() * 64, 24 + Math.random() * 40, 2, 2); }
       g.fillStyle = '#f48fb8'; g.fillRect(0, 13, 64, 9);                    // strawberry jam
       g.fillStyle = '#fff4e6'; g.fillRect(0, 0, 64, 13);                    // cream, dripping
       for (var x = 0; x < 64; x += 8) { g.beginPath(); g.ellipse(x + 4, 12, 3.4, 4 + (x * 7 % 9), 0, 0, 6.3); g.fill(); }
@@ -2245,10 +2246,10 @@ body {
       var br = new THREE.Mesh(new THREE.TubeGeometry(curve, 60, 7, 8), sugar); world.add(br);
     }
     var cloudTex = canvasTex(256, 256, function (g) {
-      g.fillStyle = '#fff6fb'; g.fillRect(0, 0, 256, 256);
+      g.fillStyle = '#f4faff'; g.fillRect(0, 0, 256, 256);
       for (var n = 0; n < 90; n++) {
         var x = Math.random() * 256, y = Math.random() * 256, r = 12 + Math.random() * 40, gr = g.createRadialGradient(x, y, 0, x, y, r);
-        gr.addColorStop(0, ['rgba(255,255,255,0.9)', 'rgba(255,214,235,0.6)', 'rgba(222,214,255,0.55)'][n % 3]); gr.addColorStop(1, 'rgba(255,255,255,0)');
+        gr.addColorStop(0, ['rgba(255,255,255,1)', 'rgba(214,236,255,0.7)', 'rgba(255,255,255,0.9)'][n % 3]); gr.addColorStop(1, 'rgba(255,255,255,0)');
         g.fillStyle = gr; [-256, 0, 256].forEach(function (ox) { [-256, 0, 256].forEach(function (oy) { g.save(); g.translate(ox, oy); g.fillRect(x - r, y - r, r * 2, r * 2); g.restore(); }); });
       }
     });
@@ -2257,9 +2258,9 @@ body {
     sea.rotation.x = -Math.PI / 2; sea.position.set(220, -120, 100); world.add(sea);
     tickers.push(function (dt) { cloudTex.offset.x += dt * 0.004; });
     var puffs = [];
-    for (i = 0; i < 90; i++) {
-      var pa = rnd(0, 6.283), pr = rnd(250, 2300), px = 220 + Math.cos(pa) * pr, pz = 100 + Math.sin(pa) * pr, py = rnd(-112, -70);
-      for (var m = 0; m < 4; m++) puffs.push({ x: px + rnd(-50, 50), y: py + rnd(0, 18), z: pz + rnd(-50, 50), sv: [rnd(30, 70), rnd(14, 26), rnd(30, 70)], c: [0xffffff, 0xffeef6, 0xf1ecff][m % 3], sky: true });
+    for (i = 0; i < 130; i++) {                     // fluffy cloud sea underneath, rising into banks towards the horizon
+      var pa = rnd(0, 6.283), pr = rnd(250, 2600), px = 220 + Math.cos(pa) * pr, pz = 100 + Math.sin(pa) * pr, py = pr > 1500 ? rnd(-90, -10) : rnd(-112, -70);
+      for (var m = 0; m < 4; m++) puffs.push({ x: px + rnd(-60, 60), y: py + rnd(0, 22), z: pz + rnd(-60, 60), sv: [rnd(34, 80), rnd(16, 32), rnd(34, 80)], c: [0xffffff, 0xf2f8ff, 0xffffff][m % 3], sky: true });
     }
     for (i = 0; i < 40; i++) {                      // a few soft clouds drifting at road height, well clear of it
       var ca2 = rnd(0, 6.283), cr2 = rnd(500, 900), cx2 = 220 + Math.cos(ca2) * cr2, cz2 = 100 + Math.sin(ca2) * cr2, cy2 = rnd(-10, 70);
@@ -2345,9 +2346,10 @@ body {
       fog: [220, 1300], hemi: [0xb9c4ff, 0x40405a, 0.85], sun: [0xaab8ff, 0.3], sunDir: [0.4, 0.5, -0.6], sunCol: '#dfe6ff',
       crowd: 0.15, gate: 0xffd23f, props: townProps, photoSky: 'sky_town.jpg', wig: [3, 0.17, 1.3, 10, 0.075, 0.5], pads: [[0.1, 0], [0.36, -7], [0.36, 7], [0.66, 0], [0.9, 7]], ramps: [0.5, 0.78], hills: [[0.5, 0.12, 42], [0.77, 0.08, 24]], flat: 33, skirt: 45, haz: 'penguin', dirt: 0xb9c6de, cutKinds: ['road', 'fly', 'dirt'],
       ctrl: [[0,0],[150,-10],[250,-70],[250,-180],[170,-250],[190,-350],[100,-420],[-20,-380],[-60,-280],[-160,-240],[-270,-300],[-340,-220],[-300,-110],[-200,-70],[-120,-10]] },
-    { name: 'もちもちワンダーパーク', note: '雲の上のスイーツ遊園地。跳ねて・のびて・くっついて走る', road: '#7a6aa0', horizon: '#ffe4f1', below: '#fff6fb',
-      sky: [[0, '#4fb2ff'], [0.5, '#8fd0ff'], [0.82, '#ffc6e2'], [1, '#ffe2f0']], clouds: [14, 0xffffff],
-      fog: [700, 2800], hemi: [0xfff0f7, 0xd9a3c4, 0.82], sun: [0xfff1dc, 0.72], sunDir: [0.45, 0.8, -0.4], sunCol: '#fff2cf',
+    { name: 'もちもちワンダーパーク', note: '雲の上のスイーツ遊園地。跳ねて・のびて・くっついて走る', road: '#f5e9b8', roadLook: { kerbA: '#ff7eb3', kerbB: '#ffffff', line: '#ffb8d6', glow: 0x2a2618 },
+      horizon: '#b5e3ff', below: '#d3efff',                                       // a clear midday sky over a sea of white cloud
+      sky: [[0, '#1f8fe6'], [0.5, '#4fb3f3'], [0.85, '#8fd2fb'], [1, '#b5e3ff']], clouds: [22, 0xffffff],
+      fog: [2200, 8000], hemi: [0xf6f9ff, 0xbfe0ff, 0.82], sun: [0xfff6e6, 0.2], sunDir: [0.45, 0.8, -0.4], sunCol: '#fffbe8',
       crowd: 0, gate: 0xff7ab6, props: parkProps, park: true, path: parkPath, noCuts: true, pads: [], ramps: [], hills: [], haz: null, dirt: 0xd9b97e }
   ];
 
@@ -2406,7 +2408,9 @@ body {
     hemi.color.setHex(st.hemi[0]); hemi.groundColor.setHex(st.hemi[1]); hemi.intensity = st.hemi[2];
     sun.color.setHex(st.sun[0]); sun.intensity = st.sun[1];
     sky(st);
-    ribbon(HW, 0.05, roadMat(st.road, st.cobble), 0, false, park && park.skip);
+    var rmat = roadMat(st.road, st.cobble, st.roadLook);
+    if (st.roadLook && st.roadLook.glow) rmat.emissive.setHex(st.roadLook.glow);   // keeps a pale road pale in the shade
+    ribbon(HW, 0.05, rmat, 0, false, park && park.skip);
     gate(st.gate);
     coins = [];
     var coinG = new THREE.CylinderGeometry(1.1, 1.1, 0.25, 14); coinG.rotateX(Math.PI / 2);
