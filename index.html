@@ -372,6 +372,13 @@ body {
     camera.updateProjectionMatrix(); camera2.updateProjectionMatrix();
   }
   window.addEventListener('resize', resize);
+  // phones don't always say when the screen changed shape: iOS fires 'resize' before the new size is laid out,
+  // and entering fullscreen or locking the orientation may not fire it at all. A stale size stretches the whole
+  // picture (karts look squashed), so check the real size every frame as well.
+  window.addEventListener('orientationchange', function () { setTimeout(resize, 120); setTimeout(resize, 500); });
+  document.addEventListener('fullscreenchange', resize);
+  if (window.visualViewport) window.visualViewport.addEventListener('resize', resize);
+  function fitCheck() { var g = $('game'); if (g.clientWidth && g.clientHeight && (g.clientWidth !== vw || g.clientHeight !== vh)) resize(); }
   resize();
 
   function canvasTex(w, h, draw) {
@@ -451,7 +458,7 @@ body {
   });
   var player = karts[0], p2 = karts[1];
   function humans() { return twoP ? [player, p2] : [player]; }
-  window.mochi = { karts: karts, roll: function (rank, n) { var c = {}, k = { rank: rank }; raceT = 99; thunderCount = -1e9; for (var i = 0; i < n; i++) { var it = randomItem(k); c[it] = (c[it] || 0) + 1; } thunderCount = 0; return c; }, redraw: function () { cams.forEach(function (c) { c.h = c.k.h; c.y = c.k.alt; }); cam(cams[0], 0.016); draw(camera); }, P: function (i) { return P[i]; }, H: function (i) { return H[i]; }, park: function () { return park; }, NR: function (i) { return NR[i]; }, snapCam: function () { cams.forEach(function (c) { c.h = c.k.h; c.y = c.k.alt; }); }, cuts: function () { return cuts; }, goCut: function (n) { var c = cuts[n], m = c.forkM + 2; player.total += c.ia + m - player.idx; player.idx = c.ia + m; player.speed = 60; player.x = c.pts[m].x; player.z = c.pts[m].z; player.h = c.pts[m].ry; player.cut = c; player.ci = m; },
+  window.mochi = { karts: karts, roll: function (rank, n) { var c = {}, k = { rank: rank }; raceT = 99; thunderCount = -1e9; for (var i = 0; i < n; i++) { var it = randomItem(k); c[it] = (c[it] || 0) + 1; } thunderCount = 0; return c; }, redraw: function () { cams.forEach(function (c) { c.h = c.k.h; c.y = c.k.alt; }); cam(cams[0], 0.016); draw(camera); }, P: function (i) { return P[i]; }, H: function (i) { return H[i]; }, camAspect: function () { return camera.aspect; }, park: function () { return park; }, NR: function (i) { return NR[i]; }, snapCam: function () { cams.forEach(function (c) { c.h = c.k.h; c.y = c.k.alt; }); }, cuts: function () { return cuts; }, goCut: function (n) { var c = cuts[n], m = c.forkM + 2; player.total += c.ia + m - player.idx; player.idx = c.ia + m; player.speed = 60; player.x = c.pts[m].x; player.z = c.pts[m].z; player.h = c.pts[m].ry; player.cut = c; player.ci = m; },
     sep: function () { var best = 1e9; for (var i = 0; i < N; i += 4) for (var j = i + 80; j < N; j += 4) { if (i + N - j < 80) continue; var d = Math.hypot(P[i].x - P[j].x, P[i].z - P[j].z); if (d < best) best = d; } return Math.round(best); }, hz: function () { return hazards.length; }, use: function (i, it) { karts[i].item = it; useItem(karts[i]); },
     tick: function (n) { while (n-- > 0) step(1 / 60); return { balls: balls.length, bananas: oils.length, bolts: bolts.length }; } };
 
@@ -3596,7 +3603,7 @@ body {
   var last = performance.now();
   function frame(now) {
     var dt = Math.min(0.05, (now - last) / 1000); watchSpeed((now - last) / 1000); last = now;
-    netStep(dt);
+    fitCheck(); netStep(dt);
     if (!paused) { step(dt); tickers.forEach(function (f) { f(dt); }); }
     cam(cams[0], dt); hud(); engineTick();
     sun.target.position.set(player.x, player.alt, player.z); sun.target.updateMatrixWorld();
